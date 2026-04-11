@@ -1,7 +1,8 @@
 # WhatsApp Blaster
 
-A desktop app for sending personalized WhatsApp messages automatically via WhatsApp Web.
-Built with **Electron**, **Node.js**, and **Puppeteer**.
+A simple yet powerful desktop app that lets you **send WhatsApp messages and images automatically** — while still keeping every message personal and natural.
+
+Built with **Electron, Node.js, and Puppeteer**, this tool uses WhatsApp Web to automate sending **custom text messages and media (images with or without captions)** to multiple contacts. Everything runs locally on your system, ensuring your data stays **private, secure, and fully under your control**.
 
 ---
 
@@ -150,3 +151,5 @@ userData location:
 ## 📝 License
 
 MIT — for personal and legitimate business use only.
+
+Made with ❤️ by Nayan Roy
