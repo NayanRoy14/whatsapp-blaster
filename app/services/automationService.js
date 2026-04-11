@@ -1,7 +1,7 @@
 /**
  * automationService.js
  * Orchestrates the full send loop:
- * contacts → template render → send → status update → delay → repeat
+ * contacts -> template render -> send -> status update -> delay -> repeat
  *
  * Supports pause/resume/stop.
  * Persists status to report.json in userData.
@@ -15,17 +15,13 @@ const templateService = require('./templateService');
 const whatsapp = require('./whatsappService');
 const { humanDelay, jitteredDelay, randomBetween } = require('../utils/delay');
 
-// ─── State ────────────────────────────────────────────────────────────────────
-
-let _running  = false;
-let _paused   = false;
-let _stopped  = false;
-let _emit     = null;   // event emitter callback set by start()
-let _statuses = [];     // array of status objects
+let _running = false;
+let _paused = false;
+let _stopped = false;
+let _emit = null;
+let _statuses = [];
 
 const REPORT_PATH = () => path.join(app.getPath('userData'), 'report.json');
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function emit(event, data) {
   if (_emit) _emit(event, data);
@@ -40,7 +36,7 @@ function saveReport() {
   try {
     fs.writeFileSync(REPORT_PATH(), JSON.stringify(_statuses, null, 2), 'utf8');
   } catch (err) {
-    logger.warn('Could not save report.json: ' + err.message);
+    logger.warn(`Could not save report.json: ${err.message}`);
   }
 }
 
@@ -50,35 +46,24 @@ function updateStatus(index, patch) {
   saveReport();
 }
 
-/** Block until unpaused or stopped */
 async function waitWhilePaused() {
   while (_paused && !_stopped) {
     await humanDelay(500);
   }
 }
 
-// ─── Main API ─────────────────────────────────────────────────────────────────
-
-/**
- * @param {Object} config
- * @param {Array}  config.contacts      - [{name, phone}]
- * @param {string} config.template      - message template
- * @param {string} [config.imagePath]   - optional image
- * @param {number} config.delaySeconds  - base delay between sends
- * @param {boolean} config.resumeFailed - skip already-sent contacts
- * @param {Function} emitFn             - callback(event, data)
- */
 async function start(config, emitFn) {
   if (_running) throw new Error('Automation already running');
 
   _running = true;
-  _paused  = false;
+  _paused = false;
   _stopped = false;
-  _emit    = emitFn;
+  _emit = emitFn;
 
   const { contacts, template, imagePath, delaySeconds = 5, resumeFailed } = config;
+  const hasTemplate = Boolean(template && template.trim());
+  const hasImage = Boolean(imagePath);
 
-  // Initialize statuses (or resume from existing)
   const existing = (() => {
     try {
       if (resumeFailed && fs.existsSync(REPORT_PATH())) {
@@ -90,7 +75,6 @@ async function start(config, emitFn) {
 
   _statuses = contacts.map((c, i) => {
     const prev = existing && existing[i];
-    // If resuming and previously sent, keep that status
     if (resumeFailed && prev && prev.phone === c.phone && prev.status === 'sent') {
       return { ...c, status: 'sent', timestamp: prev.timestamp };
     }
@@ -106,11 +90,11 @@ async function start(config, emitFn) {
 
     log('info', 'Waiting for WhatsApp login (scan QR if prompted)...');
     await whatsapp.waitForLogin(
-      () => log('info', '📱 Please scan the QR code in the browser window'),
-      () => log('info', '✅ WhatsApp logged in successfully')
+      () => log('info', 'Please scan the QR code in the browser window'),
+      () => log('info', 'WhatsApp logged in successfully')
     );
 
-    let sentCount = _statuses.filter(s => s.status === 'sent').length;
+    let sentCount = _statuses.filter((s) => s.status === 'sent').length;
 
     for (let i = 0; i < contacts.length; i++) {
       if (_stopped) break;
@@ -118,26 +102,31 @@ async function start(config, emitFn) {
       if (_stopped) break;
 
       const contact = contacts[i];
-      const status  = _statuses[i];
+      const status = _statuses[i];
 
-      // Skip already sent (resume mode)
       if (status.status === 'sent') {
-        log('info', `⏭  Skipping ${contact.name} (already sent)`);
+        log('info', `Skipping ${contact.name} (already sent)`);
         continue;
       }
 
       updateStatus(i, { status: 'sending' });
-      log('info', `📨 Sending to ${contact.name} (${contact.phone})...`);
+      log('info', `Sending to ${contact.name} (${contact.phone})...`);
 
       try {
-        const message = templateService.render(template, contact);
+        const message = hasTemplate ? templateService.render(template, contact) : '';
 
-        await whatsapp.sendMessage(contact.phone, message);
-
-        if (imagePath) {
-          await humanDelay(randomBetween(1000, 2000));
-          // Pass message as caption so image + text arrive together
+        if (hasTemplate && hasImage) {
+          await whatsapp.sendMessage(contact.phone, message);
+          await humanDelay(randomBetween(200, 400));
           await whatsapp.sendImage(imagePath);
+        } else if (hasTemplate) {
+          await whatsapp.sendMessage(contact.phone, message);
+        } else if (hasImage) {
+          await whatsapp.openChat(contact.phone);
+          await humanDelay(randomBetween(150, 300));
+          await whatsapp.sendImage(imagePath);
+        } else {
+          throw new Error('Nothing to send. Add a message, an image, or both.');
         }
 
         sentCount++;
@@ -147,15 +136,14 @@ async function start(config, emitFn) {
           error: null,
         });
 
-        log('info', `✅ Sent to ${contact.name}`);
+        log('info', `Sent to ${contact.name}`);
         emit('automation:progress', {
           sent: sentCount,
           total: contacts.length,
           statuses: _statuses,
         });
-
       } catch (err) {
-        log('warn', `❌ Failed: ${contact.name} — ${err.message}`);
+        log('warn', `Failed: ${contact.name} - ${err.message}`);
         updateStatus(i, {
           status: 'failed',
           timestamp: new Date().toISOString(),
@@ -163,47 +151,45 @@ async function start(config, emitFn) {
         });
       }
 
-      // Human-like delay before next contact (skip after last)
       if (i < contacts.length - 1 && !_stopped) {
         const ms = jitteredDelay(delaySeconds * 1000, 0.2);
-        log('info', `⏱  Waiting ${(ms / 1000).toFixed(1)}s...`);
+        log('info', `Waiting ${(ms / 1000).toFixed(1)}s...`);
         await humanDelay(ms);
       }
     }
 
     if (_stopped) {
-      log('info', '🛑 Automation stopped by user');
+      log('info', 'Automation stopped by user');
     } else {
-      log('info', `🎉 Done! Sent: ${sentCount}/${contacts.length}`);
+      log('info', `Done! Sent: ${sentCount}/${contacts.length}`);
     }
 
     emit('automation:done', { sent: sentCount, total: contacts.length, statuses: _statuses });
-
   } catch (err) {
     log('error', `Fatal error: ${err.message}`);
     emit('automation:error', { message: err.message });
   } finally {
     _running = false;
-    _paused  = false;
+    _paused = false;
   }
 }
 
 function pause() {
   if (!_running) return;
   _paused = true;
-  log('info', '⏸  Paused');
-  emit('automation:log', { level: 'info', message: '⏸  Paused', time: new Date().toISOString() });
+  log('info', 'Paused');
+  emit('automation:log', { level: 'info', message: 'Paused', time: new Date().toISOString() });
 }
 
 function resume() {
   if (!_running) return;
   _paused = false;
-  log('info', '▶️  Resumed');
+  log('info', 'Resumed');
 }
 
 async function stop() {
   _stopped = true;
-  _paused  = false;
+  _paused = false;
   await whatsapp.closeBrowser();
   _running = false;
 }

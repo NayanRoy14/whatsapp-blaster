@@ -187,7 +187,7 @@ function updatePreview() {
   const tpl = messageTemplate.value;
   const contact = state.contacts[0];
   if (!tpl || !contact) {
-    messagePreview.innerHTML = '<em>Preview will appear here once you load contacts and write a template.</em>';
+    messagePreview.innerHTML = '<em>Preview will appear here once you load contacts and add a message template. You can also leave it empty to send only an image.</em>';
     return;
   }
   // Render locally (mirrors templateService logic)
@@ -359,8 +359,8 @@ function validateBeforeStart() {
     alert('Please load a CSV file with contacts first.');
     return false;
   }
-  if (!messageTemplate.value.trim()) {
-    alert('Please enter a message template.');
+  if (!messageTemplate.value.trim() && !state.imagePath) {
+    alert('Please enter a message template, attach an image, or both.');
     return false;
   }
   return true;
