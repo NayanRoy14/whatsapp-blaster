@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-blaster",
+  "version": "1.0.0",
+  "description": "Automated personalized WhatsApp messaging desktop app",
+  "main": "app/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "csv-parse": "^5.5.0",
+    "electron-log": "^5.0.0"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0"
+  },
+  "keywords": ["whatsapp", "automation", "electron"],
+  "author": "",
+  "license": "MIT"
+}

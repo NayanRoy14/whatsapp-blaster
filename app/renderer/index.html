@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Blaster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── Sidebar ───────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.6 6.4A8 8 0 1 0 19.94 14.1L22 22l-7.9-2.06A8 8 0 0 1 17.6 6.4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M9 12h6M9 9h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">WA Blaster</span>
+          <span class="logo-sub">v1.0</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-panel="contacts">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M7 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.01-.2c0-2.485 2.394-4.5 5.348-4.5.387 0 .764.034 1.13.099A6.474 6.474 0 0 0 6.5 14.5c0 1.19.318 2.304.873 3.262a24.5 24.5 0 0 1-.36.015c-2.962 0-5.398-1.124-5.398-1.35ZM13 14.5a5.5 5.5 0 1 0-11 0 5.5 5.5 0 0 0 11 0Z" fill="currentColor"/></svg>
+          Contacts
+        </button>
+        <button class="nav-btn" data-panel="message">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M2 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9.5L5 18v-4H4a2 2 0 0 1-2-2V5Z" fill="currentColor"/></svg>
+          Message
+        </button>
+        <button class="nav-btn" data-panel="send">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" fill="currentColor"/></svg>
+          Send
+        </button>
+        <button class="nav-btn" data-panel="report">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5ZM8 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7ZM14 3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V3Z" fill="currentColor"/></svg>
+          Report
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="safety-note">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5A6.5 6.5 0 1 0 14.5 8 6.507 6.507 0 0 0 8 1.5ZM8 5a.5.5 0 1 1 0 1 .5.5 0 0 1 0-1Zm.5 6h-1V7h1v4Z" fill="currentColor"/></svg>
+          Use responsibly. Excessive messaging may result in WhatsApp account restrictions.
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ───────────────────────────────────────────── -->
+    <main class="content">
+
+      <!-- CONTACTS PANEL -->
+      <section class="panel active" id="panel-contacts">
+        <div class="panel-header">
+          <h1>Contacts</h1>
+          <span class="badge" id="contact-count">0 loaded</span>
+        </div>
+
+        <div class="upload-zone" id="csv-drop-zone">
+          <div class="upload-icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M8 40h32M24 8v24M13 19l11-11 11 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="upload-text">
+            <strong>Drop your CSV file here</strong>
+            <span>or click to browse</span>
+          </div>
+          <div class="upload-hint">Format: name, phone (with country code e.g. 14155552671)</div>
+          <button class="btn btn-outline" id="csv-browse-btn">Browse CSV</button>
+        </div>
+
+        <div class="csv-errors" id="csv-errors" style="display:none"></div>
+
+        <div class="contacts-table-wrap" id="contacts-table-wrap" style="display:none">
+          <div class="table-toolbar">
+            <span class="table-label" id="contacts-loaded-label">0 contacts loaded</span>
+            <button class="btn btn-ghost btn-sm" id="csv-clear-btn">✕ Clear</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table" id="contacts-table">
+              <thead>
+                <tr><th>#</th><th>Name</th><th>Phone</th><th>Status</th></tr>
+              </thead>
+              <tbody id="contacts-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MESSAGE PANEL -->
+      <section class="panel" id="panel-message">
+        <div class="panel-header">
+          <h1>Message</h1>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Message Template</label>
+            <div class="placeholder-hints">
+              <span class="chip" data-insert="{name}">+ {name}</span>
+              <span class="chip" data-insert="{phone}">+ {phone}</span>
+            </div>
+            <textarea
+              id="message-template"
+              class="textarea"
+              rows="6"
+              placeholder="Hello {name}, we have an exclusive offer for you!"
+            ></textarea>
+            <div class="char-count"><span id="char-count">0</span> characters</div>
+          </div>
+
+          <div class="form-group full">
+            <label>Live Preview <span class="label-sub">(using first contact)</span></label>
+            <div class="preview-box" id="message-preview">
+              <em>Preview will appear here once you load contacts and write a template.</em>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label>Image Attachment <span class="label-sub">(optional)</span></label>
+            <div class="image-upload-row">
+              <button class="btn btn-outline" id="image-browse-btn">📎 Attach Image</button>
+              <span class="image-path-display" id="image-path-display">No image selected</span>
+              <button class="btn btn-ghost btn-sm" id="image-clear-btn" style="display:none">✕ Remove</button>
+            </div>
+            <div class="image-preview-wrap" id="image-preview-wrap" style="display:none">
+              <img id="image-preview" src="" alt="Preview" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Delay Between Sends (seconds)</label>
+            <div class="delay-row">
+              <input type="range" id="delay-slider" min="3" max="60" value="8" step="1" />
+              <input type="number" id="delay-input" min="3" max="60" value="8" />
+            </div>
+            <div class="delay-hint">±20% jitter applied automatically for human-like pacing</div>
+          </div>
+
+          <div class="form-group">
+            <label>Options</label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="opt-resume" />
+              Resume from last failed contact
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEND PANEL -->
+      <section class="panel" id="panel-send">
+        <div class="panel-header">
+          <h1>Send</h1>
+          <div class="send-summary" id="send-summary">
+            <span id="summary-contacts">0 contacts</span>
+            <span class="sep">·</span>
+            <span id="summary-template">No template</span>
+            <span class="sep">·</span>
+            <span id="summary-image">No image</span>
+            <span class="sep">·</span>
+            <span id="summary-delay">8s delay</span>
+          </div>
+        </div>
+
+        <div class="send-controls">
+          <button class="btn btn-primary btn-lg" id="start-btn">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M6.3 2.841A1.5 1.5 0 0 0 4 4.11V15.89a1.5 1.5 0 0 0 2.3 1.269l9.344-5.89a1.5 1.5 0 0 0 0-2.538L6.3 2.84Z"/></svg>
+            Start Sending
+          </button>
+          <button class="btn btn-warning" id="pause-btn" disabled>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5ZM12.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z"/></svg>
+            Pause
+          </button>
+          <button class="btn btn-danger" id="stop-btn" disabled>
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.25 3A2.25 2.25 0 0 0 3 5.25v9.5A2.25 2.25 0 0 0 5.25 17h9.5A2.25 2.25 0 0 0 17 14.75v-9.5A2.25 2.25 0 0 0 14.75 3h-9.5Z"/></svg>
+            Stop
+          </button>
+          <button class="btn btn-ghost" id="export-btn">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10m0 0-4-4m4 4 4-4M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export Report
+          </button>
+        </div>
+
+        <div class="progress-section" id="progress-section" style="display:none">
+          <div class="progress-stats">
+            <div class="stat">
+              <span class="stat-value" id="stat-sent">0</span>
+              <span class="stat-label">Sent</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="stat-failed">0</span>
+              <span class="stat-label">Failed</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="stat-pending">0</span>
+              <span class="stat-label">Pending</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="stat-total">0</span>
+              <span class="stat-label">Total</span>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+            <span class="progress-pct" id="progress-pct">0%</span>
+          </div>
+        </div>
+
+        <div class="log-panel">
+          <div class="log-header">
+            <span>Activity Log</span>
+            <button class="btn btn-ghost btn-sm" id="clear-log-btn">Clear</button>
+          </div>
+          <div class="log-body" id="log-body">
+            <div class="log-empty">No activity yet. Start sending to see logs.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORT PANEL -->
+      <section class="panel" id="panel-report">
+        <div class="panel-header">
+          <h1>Report</h1>
+          <button class="btn btn-outline btn-sm" id="report-export-btn">↓ Export CSV</button>
+        </div>
+
+        <div class="report-table-wrap">
+          <table class="data-table" id="report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Timestamp</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody id="report-tbody">
+              <tr><td colspan="6" class="empty-cell">No report data. Start sending first.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

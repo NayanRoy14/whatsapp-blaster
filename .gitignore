@@ -1,0 +1,19 @@
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Build/runtime artifacts
+dist/
+out/
+coverage/
